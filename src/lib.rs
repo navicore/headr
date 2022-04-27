@@ -24,14 +24,14 @@ pub fn get_args() -> MyResult<Config> {
         )
         .arg(
             Arg::with_name("lines")
-                .short("n")
+                .short('n')
                 .long("lines")
                 .help("Number lines")
                 .takes_value(true),
         )
         .arg(
             Arg::with_name("bytes")
-                .short("b")
+                .short('b')
                 .long("bytes")
                 .help("Number bytes")
                 .takes_value(true),
