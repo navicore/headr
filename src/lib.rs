@@ -1,4 +1,4 @@
-use clap::{App, Arg};
+use clap::{Arg, Command};
 use std::error::Error;
 
 type MyResult<T> = Result<T, Box<dyn Error>>;
@@ -11,39 +11,52 @@ pub struct Config {
 }
 
 pub fn get_args() -> MyResult<Config> {
-    let matches = App::new("headr")
+    let matches = Command::new("headr")
         .version("0.1.0")
         .author("Ed Sweeney <ed@onextent.com>")
         .about("Rust head")
         .arg(
-            Arg::with_name("files")
+            Arg::new("files")
                 .value_name("FILE")
-                .help("Input files")
+                .help("Input file(s)")
                 .default_value("-")
-                .multiple(true),
+                .multiple_occurrences(true),
         )
         .arg(
-            Arg::with_name("lines")
+            Arg::new("lines")
                 .short('n')
                 .long("lines")
-                .help("Number lines")
-                .takes_value(true),
+                .value_name("LINES")
+                .help("Number of lines")
+                .default_value("10"),
         )
         .arg(
-            Arg::with_name("bytes")
-                .short('b')
+            Arg::new("bytes")
+                .short('c')
                 .long("bytes")
-                .help("Number bytes")
+                .help("Number of bytes")
+                .value_name("BYTES")
+                .conflicts_with("lines")
                 .takes_value(true),
         )
         .get_matches();
 
+    let lines = matches
+        .value_of("lines")
+        .map(parse_positive_int)
+        .transpose()
+        .map_err(|e| format!("illegal line count -- {}", e))?;
+
+    let bytes = matches
+        .value_of("bytes")
+        .map(parse_positive_int)
+        .transpose()
+        .map_err(|e| format!("illegal byte count -- {}", e))?;
+
     Ok(Config {
         files: matches.values_of_lossy("files").unwrap(),
-        //lines: matches.value_of("lines").unwrap(),
-        lines: 10,
-        //bytes: matches.value_of("bytes").unwrap(),
-        bytes: None,
+        lines: lines.unwrap(),
+        bytes,
     })
 }
 
