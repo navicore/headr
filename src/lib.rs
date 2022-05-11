@@ -36,6 +36,7 @@ pub fn get_args() -> MyResult<Config> {
         )
         .arg(
             Arg::new("files")
+                .required(false)
                 .value_name("FILE")
                 .help("Input file(s)")
                 .multiple_occurrences(true)
